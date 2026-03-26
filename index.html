@@ -36,30 +36,113 @@
         .hidden { display: none; }
         h1 { color: #2c3e50; }
         p { color: #34495e; line-height: 1.8; font-size: 1.1rem; }
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+        }
+        .nav-links li {
+            margin: 1rem 0;
+        }
+        .nav-links a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #7f8c8d;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="he-page">
-            <a href="#" class="lang-link" onclick="toggle('en')">English</a>
-            <h1>כותרת בעברית</h1>
-            <p>הכנס את הטקסט שלך כאן. העברית מיושרת לימין בצורה תקינה.</p>
+        <!-- Hebrew Main Page -->
+        <div id="he-main" class="page">
+            <a href="#" class="lang-link" onclick="switchLang('en')">English</a>
+            <h1>ברוכים הבאים</h1>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showPage('he-text1')">טקסט 1</a></li>
+                <li><a href="#" onclick="showPage('he-text2')">טקסט 2</a></li>
+            </ul>
         </div>
 
-        <div id="en-page" class="hidden">
-            <a href="#" class="lang-link" onclick="toggle('he')">עברית</a>
+        <!-- Hebrew Text 1 -->
+        <div id="he-text1" class="page hidden">
+            <a href="#" class="lang-link" onclick="switchLang('en')">English</a>
+            <h1>טקסט 1</h1>
+            <p>כאן תוכל להוסיף את התוכן של טקסט 1 בעברית. זהו דף נפרד עם תוכן משלו.</p>
+            <a href="#" class="back-link" onclick="showPage('he-main')">← חזרה לדף הראשי</a>
+        </div>
+
+        <!-- Hebrew Text 2 -->
+        <div id="he-text2" class="page hidden">
+            <a href="#" class="lang-link" onclick="switchLang('en')">English</a>
+            <h1>טקסט 2</h1>
+            <p>כאן תוכל להוסיף את התוכן של טקסט 2 בעברית. זהו דף נפרד עם תוכן משלו.</p>
+            <a href="#" class="back-link" onclick="showPage('he-main')">← חזרה לדף הראשי</a>
+        </div>
+
+        <!-- English Main Page -->
+        <div id="en-main" class="page hidden">
+            <a href="#" class="lang-link" onclick="switchLang('he')">עברית</a>
             <div dir="ltr">
-                <h1>English Title</h1>
-                <p>Enter your English text here. The layout will switch to left-to-right automatically.</p>
+                <h1>Welcome</h1>
+                <ul class="nav-links">
+                    <li><a href="#" onclick="showPage('en-text1')">Text 1</a></li>
+                    <li><a href="#" onclick="showPage('en-text2')">Text 2</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- English Text 1 -->
+        <div id="en-text1" class="page hidden">
+            <a href="#" class="lang-link" onclick="switchLang('he')">עברית</a>
+            <div dir="ltr">
+                <h1>Text 1</h1>
+                <p>Here you can add the content for Text 1 in English. This is a separate page with its own content.</p>
+                <a href="#" class="back-link" onclick="showPage('en-main')">← Back to main page</a>
+            </div>
+        </div>
+
+        <!-- English Text 2 -->
+        <div id="en-text2" class="page hidden">
+            <a href="#" class="lang-link" onclick="switchLang('he')">עברית</a>
+            <div dir="ltr">
+                <h1>Text 2</h1>
+                <p>Here you can add the content for Text 2 in English. This is a separate page with its own content.</p>
+                <a href="#" class="back-link" onclick="showPage('en-main')">← Back to main page</a>
             </div>
         </div>
     </div>
 
     <script>
-        function toggle(lang) {
-            document.getElementById('he-page').classList.toggle('hidden');
-            document.getElementById('en-page').classList.toggle('hidden');
+        let currentLang = 'he';
+
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            // Show selected page
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function switchLang(lang) {
+            currentLang = lang;
             document.documentElement.dir = (lang === 'he') ? 'rtl' : 'ltr';
+            document.documentElement.lang = lang;
+            showPage(lang + '-main');
         }
     </script>
 </body>
