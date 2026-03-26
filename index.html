@@ -14,15 +14,26 @@
             align-items: center;
             min-height: 100vh;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            transition: background-image 0.3s ease;
+        }
+        body.bg-saba {
+            background-image: url('saba.jpg');
+        }
+        body.bg-rojan {
+            background-image: url('rojan.jpg');
         }
         .container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 3rem;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             width: 90%;
             max-width: 650px;
             position: relative;
+            backdrop-filter: blur(10px);
         }
         .lang-link {
             position: absolute;
@@ -214,6 +225,14 @@
             });
             // Show selected page
             document.getElementById(pageId).classList.remove('hidden');
+
+            // Update background based on page
+            document.body.classList.remove('bg-saba', 'bg-rojan');
+            if (pageId === 'he-text1') {
+                document.body.classList.add('bg-saba');
+            } else if (pageId === 'he-text2') {
+                document.body.classList.add('bg-rojan');
+            }
         }
 
         function switchLang(lang) {
