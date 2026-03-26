@@ -9,6 +9,7 @@
         body {
             font-family: 'Assistant', sans-serif;
             margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -16,14 +17,23 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
             background-attachment: fixed;
-            transition: background-image 0.3s ease;
+            transition: background 0.3s ease;
         }
         body.bg-saba {
-            background-image: url('saba.jpg');
+            background: linear-gradient(rgba(245, 247, 250, 0.3), rgba(195, 207, 226, 0.3)), url('saba.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
         body.bg-rojan {
-            background-image: url('rojan.jpg');
+            background: linear-gradient(rgba(245, 247, 250, 0.3), rgba(195, 207, 226, 0.3)), url('rojan.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
         .container {
             background: rgba(255, 255, 255, 0.95);
@@ -151,8 +161,8 @@
             <div dir="ltr">
                 <h1>Welcome</h1>
                 <ul class="nav-links">
-                    <li><a href="#" onclick="showPage('en-text1')">Text 1</a></li>
-                    <li><a href="#" onclick="showPage('en-text2')">Text 2</a></li>
+                    <li><a href="#" onclick="showPage('en-text1')">The Life of Mr. Shmuel Tzvi Brouda z"l</a></li>
+                    <li><a href="#" onclick="showPage('en-text2')">The Redemption of the Rozan Cemetery</a></li>
                 </ul>
             </div>
         </div>
@@ -186,8 +196,8 @@
             <div dir="ltr">
                 <h1>Witamy</h1>
                 <ul class="nav-links">
-                    <li><a href="#" onclick="showPage('pl-text1')">Tekst 1</a></li>
-                    <li><a href="#" onclick="showPage('pl-text2')">Tekst 2</a></li>
+                    <li><a href="#" onclick="showPage('pl-text1')">Życie Pana Shmuela Tzvi Broudy z"l</a></li>
+                    <li><a href="#" onclick="showPage('pl-text2')">Odkupienie Cmentarza w Rożanie</a></li>
                 </ul>
             </div>
         </div>
@@ -228,9 +238,9 @@
 
             // Update background based on page
             document.body.classList.remove('bg-saba', 'bg-rojan');
-            if (pageId === 'he-text1') {
+            if (pageId === 'he-text1' || pageId === 'en-text1' || pageId === 'pl-text1') {
                 document.body.classList.add('bg-saba');
-            } else if (pageId === 'he-text2') {
+            } else if (pageId === 'he-text2' || pageId === 'en-text2' || pageId === 'pl-text2') {
                 document.body.classList.add('bg-rojan');
             }
         }
