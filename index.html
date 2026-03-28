@@ -44,25 +44,34 @@
             max-width: 650px;
             position: relative;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(139, 115, 85, 0.1);
+            border: 2px solid rgba(139, 115, 85, 0.3);
         }
         .lang-link {
             position: absolute;
             top: 15px;
             right: 20px;
-            color: #8b4513;
+            color: #a0522d;
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(160, 82, 45, 0.1);
         }
         .lang-link:hover {
-            color: #654321;
+            color: #8b4513;
+            background: rgba(160, 82, 45, 0.2);
         }
         .lang-link + .lang-link {
             right: 80px;
         }
         .hidden { display: none; }
-        h1 { color: #2d2416; }
+        h1 {
+            color: #3d2f1f;
+            border-bottom: 2px solid rgba(139, 115, 85, 0.3);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
         p { color: #4a4034; line-height: 1.8; font-size: 1.1rem; }
         .nav-links {
             list-style: none;
@@ -73,15 +82,19 @@
             margin: 1rem 0;
         }
         .nav-links a {
-            color: #1a4d6d;
+            color: #2c4a6d;
             text-decoration: none;
             font-size: 1.2rem;
-            font-weight: 400;
-            transition: color 0.2s ease;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: inline-block;
         }
         .nav-links a:hover {
-            color: #2d5a7b;
-            text-decoration: underline;
+            color: #1a3a5d;
+            background: rgba(44, 74, 109, 0.08);
+            text-decoration: none;
         }
         .back-link {
             display: inline-block;
