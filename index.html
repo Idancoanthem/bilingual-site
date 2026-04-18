@@ -122,6 +122,24 @@
         .centered {
             text-align: center;
         }
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .photo-gallery img {
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid rgba(139, 115, 85, 0.3);
+            box-shadow: 0 2px 8px rgba(45, 35, 25, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .photo-gallery img:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 16px rgba(45, 35, 25, 0.25);
+        }
     </style>
 </head>
 <body>
@@ -190,8 +208,10 @@
         <div id="he-text3" class="page hidden">
             <a href="#" class="lang-link" onclick="switchLang('pl')">Polski</a>
             <a href="#" class="lang-link" onclick="switchLang('en')">English</a>
-            <h1>תמונות</h1>
-            <p>כאן יוצגו תמונות בעתיד.</p>
+            <h1>תמונות מחיי מר שמואל צבי בראודה ומבית הקברות ברוז'אן</h1>
+            <div class="photo-gallery">
+                <!-- Images will be added here -->
+            </div>
             <a href="#" class="back-link" onclick="showPage('he-main')">← חזרה לדף הראשי</a>
         </div>
 
@@ -253,8 +273,10 @@
             <a href="#" class="lang-link" onclick="switchLang('pl')">Polski</a>
             <a href="#" class="lang-link" onclick="switchLang('he')">עברית</a>
             <div dir="ltr">
-                <h1>Photos</h1>
-                <p>Photos will be displayed here in the future.</p>
+                <h1>Photos from the life of Mr. Shmuel Zvi Braude and from the cemetery in Różan</h1>
+                <div class="photo-gallery">
+                    <!-- Images will be added here -->
+                </div>
                 <a href="#" class="back-link" onclick="showPage('en-main')">← Back to main page</a>
             </div>
         </div>
@@ -317,8 +339,10 @@
             <a href="#" class="lang-link" onclick="switchLang('en')">English</a>
             <a href="#" class="lang-link" onclick="switchLang('he')">עברית</a>
             <div dir="ltr">
-                <h1>Zdjęcia</h1>
-                <p>Zdjęcia będą wyświetlane tutaj w przyszłości.</p>
+                <h1>Zdjęcia z życia Pana Szmuela Cwi Braude oraz z cmentarza w Różanie</h1>
+                <div class="photo-gallery">
+                    <!-- Images will be added here -->
+                </div>
                 <a href="#" class="back-link" onclick="showPage('pl-main')">← Powrót do strony głównej</a>
             </div>
         </div>
