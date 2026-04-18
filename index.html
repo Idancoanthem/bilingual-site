@@ -122,27 +122,30 @@
         .centered {
             text-align: center;
         }
-        .photo-gallery {
+        #gallery-overlay {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
+            background: #1a1410;
+            z-index: 9999;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
-            z-index: 1000;
-            background: #1a1410;
+        }
+        #gallery-overlay.active {
+            display: block;
         }
         .photo-slide {
             scroll-snap-align: start;
             scroll-snap-stop: always;
-            width: 100%;
+            width: 100vw;
             height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
         .photo-slide img {
             max-width: 92vw;
@@ -156,17 +159,17 @@
             color: #f0e8d8;
             font-size: 1.1rem;
             font-weight: 400;
-            letter-spacing: 0.02em;
             text-shadow: 0 1px 4px rgba(0,0,0,0.6);
             text-align: center;
+            padding: 0 1rem;
         }
-        .photo-gallery-back {
+        #gallery-back {
             position: fixed;
             top: 16px;
             left: 20px;
-            z-index: 1100;
+            z-index: 10000;
             color: #f0e8d8;
-            background: rgba(0,0,0,0.45);
+            background: rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.2);
             padding: 6px 14px;
             border-radius: 6px;
@@ -175,20 +178,20 @@
             cursor: pointer;
             display: none;
         }
-        .photo-gallery-back.visible {
+        #gallery-back.active {
             display: block;
         }
-        .photo-counter {
+        #gallery-counter {
             position: fixed;
             bottom: 16px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 1100;
+            z-index: 10000;
             color: rgba(240,232,216,0.6);
             font-size: 0.85rem;
             display: none;
         }
-        .photo-counter.visible {
+        #gallery-counter.active {
             display: block;
         }
     </style>
@@ -256,20 +259,7 @@
         </div>
 
         <!-- Hebrew Text 3 -->
-        <div id="he-text3" class="page hidden">
-            <div class="photo-gallery" id="he-gallery">
-                <div class="photo-slide">
-                    <img src="1.jpeg" alt="לאחר השואה">
-                    <div class="photo-caption">לאחר השואה</div>
-                </div>
-                <div class="photo-slide">
-                    <img src="2.jpeg" alt="מדריך אגודת ישראל במחנה יתומים">
-                    <div class="photo-caption">מדריך אגודת ישראל במחנה יתומים</div>
-                </div>
-            </div>
-            <a href="#" class="photo-gallery-back" id="he-gallery-back" onclick="closeGallery('he-main')">← חזרה לדף הראשי</a>
-            <div class="photo-counter" id="he-gallery-counter"></div>
-        </div>
+        <div id="he-text3" class="page hidden"></div>
 
         <!-- English Main Page -->
         <div id="en-main" class="page hidden">
@@ -325,20 +315,7 @@
         </div>
 
         <!-- English Text 3 -->
-        <div id="en-text3" class="page hidden">
-            <div class="photo-gallery" id="en-gallery" dir="ltr">
-                <div class="photo-slide">
-                    <img src="1.jpeg" alt="After the Holocaust">
-                    <div class="photo-caption">After the Holocaust</div>
-                </div>
-                <div class="photo-slide">
-                    <img src="2.jpeg" alt="Agudat Yisrael counselor in an orphan camp">
-                    <div class="photo-caption">Agudat Yisrael counselor in an orphan camp</div>
-                </div>
-            </div>
-            <a href="#" class="photo-gallery-back" id="en-gallery-back" onclick="closeGallery('en-main')">← Back to main page</a>
-            <div class="photo-counter" id="en-gallery-counter"></div>
-        </div>
+        <div id="en-text3" class="page hidden"></div>
 
         <!-- Polish Main Page -->
         <div id="pl-main" class="page hidden">
@@ -394,90 +371,88 @@
         </div>
 
         <!-- Polish Text 3 -->
-        <div id="pl-text3" class="page hidden">
-            <div class="photo-gallery" id="pl-gallery" dir="ltr">
-                <div class="photo-slide">
-                    <img src="1.jpeg" alt="Po Zagładzie">
-                    <div class="photo-caption">Po Zagładzie</div>
-                </div>
-                <div class="photo-slide">
-                    <img src="2.jpeg" alt="Wychowawca Agudat Israel w obozie dla sierot">
-                    <div class="photo-caption">Wychowawca Agudat Israel w obozie dla sierot</div>
-                </div>
-            </div>
-            <a href="#" class="photo-gallery-back" id="pl-gallery-back" onclick="closeGallery('pl-main')">← Powrót do strony głównej</a>
-            <div class="photo-counter" id="pl-gallery-counter"></div>
-        </div>
+        <div id="pl-text3" class="page hidden"></div>
     </div>
+
+    <!-- Fullscreen gallery overlay (outside .container to avoid backdrop-filter stacking context) -->
+    <div id="gallery-overlay">
+        <!-- slides injected by JS -->
+    </div>
+    <a href="#" id="gallery-back" onclick="closeGallery(); return false;"></a>
+    <div id="gallery-counter"></div>
 
     <script>
         let currentLang = 'he';
-        let activeGalleryCleanup = null;
+        let galleryReturnPage = null;
+
+        const photos = [
+            { src: '1.jpeg', captions: { he: 'לאחר השואה', en: 'After the Holocaust', pl: 'Po Zagładzie' } },
+            { src: '2.jpeg', captions: { he: 'מדריך אגודת ישראל במחנה יתומים', en: 'Agudat Yisrael counselor in an orphan camp', pl: 'Wychowawca Agudat Israel w obozie dla sierot' } },
+        ];
 
         function showPage(pageId) {
-            // Clean up any active gallery listeners
-            if (activeGalleryCleanup) {
-                activeGalleryCleanup();
-                activeGalleryCleanup = null;
-            }
-
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.add('hidden');
-            });
-            // Show selected page
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
             document.getElementById(pageId).classList.remove('hidden');
 
-            // Update background based on page
             document.body.classList.remove('bg-saba', 'bg-rojan');
-            if (pageId === 'he-text2' || pageId === 'en-text2' || pageId === 'pl-text2') {
+            if (pageId.endsWith('text2')) {
                 document.body.classList.add('bg-rojan');
             }
 
-            // Set up gallery if this is a photos page
-            const langCode = pageId.split('-')[0];
             if (pageId.endsWith('text3')) {
-                setupGallery(langCode);
+                const lang = pageId.split('-')[0];
+                openGallery(lang, pageId.replace('text3', 'main'));
             }
         }
 
-        function setupGallery(lang) {
-            const gallery = document.getElementById(lang + '-gallery');
-            const backBtn = document.getElementById(lang + '-gallery-back');
-            const counter = document.getElementById(lang + '-gallery-counter');
-            const slides = gallery.querySelectorAll('.photo-slide');
-            const total = slides.length;
+        function openGallery(lang, returnPage) {
+            galleryReturnPage = returnPage;
 
-            // Reset scroll to top
-            gallery.scrollTop = 0;
+            const overlay = document.getElementById('gallery-overlay');
+            const backBtn = document.getElementById('gallery-back');
+            const counter = document.getElementById('gallery-counter');
 
-            backBtn.classList.add('visible');
-            counter.classList.add('visible');
+            // Build slides
+            overlay.innerHTML = photos.map(p =>
+                `<div class="photo-slide">
+                    <img src="${p.src}" alt="${p.captions[lang]}">
+                    <div class="photo-caption">${p.captions[lang]}</div>
+                </div>`
+            ).join('');
+
+            // Back button label
+            backBtn.textContent = lang === 'he' ? '← חזרה לדף הראשי' : lang === 'en' ? '← Back to main page' : '← Powrót do strony głównej';
+
+            overlay.scrollTop = 0;
+            overlay.classList.add('active');
+            backBtn.classList.add('active');
+            counter.classList.add('active');
 
             function updateCounter() {
-                const index = Math.round(gallery.scrollTop / gallery.clientHeight);
-                counter.textContent = (index + 1) + ' / ' + total;
+                const index = Math.round(overlay.scrollTop / overlay.clientHeight);
+                counter.textContent = (index + 1) + ' / ' + photos.length;
             }
-
             updateCounter();
-            gallery.addEventListener('scroll', updateCounter);
-
-            activeGalleryCleanup = function() {
-                gallery.removeEventListener('scroll', updateCounter);
-                backBtn.classList.remove('visible');
-                counter.classList.remove('visible');
-            };
+            overlay._scrollHandler = updateCounter;
+            overlay.addEventListener('scroll', updateCounter);
         }
 
-        function closeGallery(returnPage) {
-            if (activeGalleryCleanup) {
-                activeGalleryCleanup();
-                activeGalleryCleanup = null;
+        function closeGallery() {
+            const overlay = document.getElementById('gallery-overlay');
+            const backBtn = document.getElementById('gallery-back');
+            const counter = document.getElementById('gallery-counter');
+
+            overlay.removeEventListener('scroll', overlay._scrollHandler);
+            overlay.classList.remove('active');
+            backBtn.classList.remove('active');
+            counter.classList.remove('active');
+
+            if (galleryReturnPage) {
+                document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+                document.getElementById(galleryReturnPage).classList.remove('hidden');
+                document.body.classList.remove('bg-saba', 'bg-rojan');
+                galleryReturnPage = null;
             }
-            // Hide all pages, show the return page directly without re-triggering gallery setup
-            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-            document.getElementById(returnPage).classList.remove('hidden');
-            document.body.classList.remove('bg-saba', 'bg-rojan');
         }
 
         function switchLang(lang) {
