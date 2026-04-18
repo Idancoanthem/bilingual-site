@@ -205,6 +205,31 @@
         #gallery-back.active {
             display: block;
         }
+        .gallery-lang-links {
+            position: fixed;
+            top: 16px;
+            right: 20px;
+            z-index: 10000;
+            display: none;
+            gap: 8px;
+        }
+        .gallery-lang-links.active {
+            display: flex;
+        }
+        .gallery-lang-links a {
+            color: #f0e8d8;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .gallery-lang-links a:hover {
+            background: rgba(0,0,0,0.7);
+        }
         #gallery-counter {
             position: fixed;
             bottom: 16px;
@@ -405,6 +430,7 @@
     <a href="#" id="gallery-back" onclick="closeGallery(); return false;"></a>
     <div id="gallery-counter"></div>
     <div id="gallery-scroll-hint">↓</div>
+    <div class="gallery-lang-links" id="gallery-lang-links"></div>
 
     <script>
         let currentLang = 'he';
@@ -444,6 +470,7 @@
             const backBtn = document.getElementById('gallery-back');
             const counter = document.getElementById('gallery-counter');
             const hint = document.getElementById('gallery-scroll-hint');
+            const langLinks = document.getElementById('gallery-lang-links');
 
             overlay.innerHTML = photos.map(p =>
                 `<div class="photo-slide">
@@ -458,9 +485,16 @@
             backBtn.textContent = lang === 'he' ? '← חזרה לדף הראשי' : lang === 'en' ? '← Back to main page' : '← Powrót do strony głównej';
             counter.textContent = '1 / ' + photos.length;
 
+            const otherLangs = ['he', 'en', 'pl'].filter(l => l !== lang);
+            const langLabels = { he: 'עברית', en: 'English', pl: 'Polski' };
+            langLinks.innerHTML = otherLangs.map(l =>
+                `<a href="#" onclick="switchGalleryLang('${l}'); return false;">${langLabels[l]}</a>`
+            ).join('');
+
             overlay.classList.add('active');
             backBtn.classList.add('active');
             counter.classList.add('active');
+            langLinks.classList.add('active');
             if (photos.length > 1) hint.classList.add('active');
 
             // Wheel navigation
@@ -515,6 +549,7 @@
             backBtn.classList.remove('active');
             counter.classList.remove('active');
             hint.classList.remove('active');
+            document.getElementById('gallery-lang-links').classList.remove('active');
 
             if (galleryReturnPage) {
                 document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
@@ -522,6 +557,19 @@
                 document.body.classList.remove('bg-saba', 'bg-rojan');
                 galleryReturnPage = null;
             }
+        }
+
+        function switchGalleryLang(lang) {
+            currentLang = lang;
+            document.documentElement.dir = (lang === 'he') ? 'rtl' : 'ltr';
+            document.documentElement.lang = lang === 'pl' ? 'pl' : (lang === 'en' ? 'en' : 'he');
+            const savedIndex = galleryIndex;
+            closeGallery();
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+            document.getElementById(lang + '-text3').classList.remove('hidden');
+            openGallery(lang, lang + '-main');
+            // restore position
+            if (savedIndex > 0) goToSlide(savedIndex);
         }
 
         function switchLang(lang) {
