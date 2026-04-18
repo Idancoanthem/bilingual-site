@@ -131,21 +131,28 @@
             height: 100vh;
             background: #1a1410;
             z-index: 9999;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
+            overflow: hidden;
         }
         #gallery-overlay.active {
             display: block;
         }
         .photo-slide {
-            scroll-snap-align: start;
-            scroll-snap-stop: always;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100vw;
             height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            pointer-events: none;
+        }
+        .photo-slide.active {
+            opacity: 1;
+            pointer-events: auto;
         }
         .photo-slide img {
             max-width: 92vw;
@@ -162,6 +169,22 @@
             text-shadow: 0 1px 4px rgba(0,0,0,0.6);
             text-align: center;
             padding: 0 1rem;
+        }
+        #gallery-scroll-hint {
+            position: fixed;
+            bottom: 48px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            color: rgba(240,232,216,0.45);
+            font-size: 1.6rem;
+            display: none;
+            animation: bounce 1.8s infinite;
+        }
+        #gallery-scroll-hint.active { display: block; }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(7px); }
         }
         #gallery-back {
             position: fixed;
@@ -380,10 +403,14 @@
     </div>
     <a href="#" id="gallery-back" onclick="closeGallery(); return false;"></a>
     <div id="gallery-counter"></div>
+    <div id="gallery-scroll-hint">↓</div>
 
     <script>
         let currentLang = 'he';
         let galleryReturnPage = null;
+        let galleryIndex = 0;
+        let gallerySlides = [];
+        let galleryLocked = false;
 
         const photos = [
             { src: '1.jpeg', captions: { he: 'לאחר השואה', en: 'After the Holocaust', pl: 'Po Zagładzie' } },
@@ -393,12 +420,8 @@
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
             document.getElementById(pageId).classList.remove('hidden');
-
             document.body.classList.remove('bg-saba', 'bg-rojan');
-            if (pageId.endsWith('text2')) {
-                document.body.classList.add('bg-rojan');
-            }
-
+            if (pageId.endsWith('text2')) document.body.classList.add('bg-rojan');
             if (pageId.endsWith('text3')) {
                 const lang = pageId.split('-')[0];
                 openGallery(lang, pageId.replace('text3', 'main'));
@@ -407,12 +430,14 @@
 
         function openGallery(lang, returnPage) {
             galleryReturnPage = returnPage;
+            galleryIndex = 0;
+            galleryLocked = false;
 
             const overlay = document.getElementById('gallery-overlay');
             const backBtn = document.getElementById('gallery-back');
             const counter = document.getElementById('gallery-counter');
+            const hint = document.getElementById('gallery-scroll-hint');
 
-            // Build slides
             overlay.innerHTML = photos.map(p =>
                 `<div class="photo-slide">
                     <img src="${p.src}" alt="${p.captions[lang]}">
@@ -420,32 +445,69 @@
                 </div>`
             ).join('');
 
-            // Back button label
-            backBtn.textContent = lang === 'he' ? '← חזרה לדף הראשי' : lang === 'en' ? '← Back to main page' : '← Powrót do strony głównej';
+            gallerySlides = overlay.querySelectorAll('.photo-slide');
+            gallerySlides[0].classList.add('active');
 
-            overlay.scrollTop = 0;
+            backBtn.textContent = lang === 'he' ? '← חזרה לדף הראשי' : lang === 'en' ? '← Back to main page' : '← Powrót do strony głównej';
+            counter.textContent = '1 / ' + photos.length;
+
             overlay.classList.add('active');
             backBtn.classList.add('active');
             counter.classList.add('active');
+            if (photos.length > 1) hint.classList.add('active');
 
-            function updateCounter() {
-                const index = Math.round(overlay.scrollTop / overlay.clientHeight);
-                counter.textContent = (index + 1) + ' / ' + photos.length;
-            }
-            updateCounter();
-            overlay._scrollHandler = updateCounter;
-            overlay.addEventListener('scroll', updateCounter);
+            // Wheel navigation
+            overlay._wheelHandler = function(e) {
+                e.preventDefault();
+                if (galleryLocked) return;
+                if (e.deltaY > 30) goToSlide(galleryIndex + 1);
+                else if (e.deltaY < -30) goToSlide(galleryIndex - 1);
+            };
+            overlay.addEventListener('wheel', overlay._wheelHandler, { passive: false });
+
+            // Touch navigation
+            let touchStartY = 0;
+            overlay._touchStartHandler = function(e) { touchStartY = e.touches[0].clientY; };
+            overlay._touchEndHandler = function(e) {
+                const diff = touchStartY - e.changedTouches[0].clientY;
+                if (diff > 40) goToSlide(galleryIndex + 1);
+                else if (diff < -40) goToSlide(galleryIndex - 1);
+            };
+            overlay.addEventListener('touchstart', overlay._touchStartHandler, { passive: true });
+            overlay.addEventListener('touchend', overlay._touchEndHandler, { passive: true });
+        }
+
+        function goToSlide(index) {
+            if (index < 0 || index >= gallerySlides.length) return;
+            if (galleryLocked) return;
+            galleryLocked = true;
+
+            gallerySlides[galleryIndex].classList.remove('active');
+            galleryIndex = index;
+            gallerySlides[galleryIndex].classList.add('active');
+
+            const counter = document.getElementById('gallery-counter');
+            const hint = document.getElementById('gallery-scroll-hint');
+            counter.textContent = (galleryIndex + 1) + ' / ' + photos.length;
+            if (galleryIndex === gallerySlides.length - 1) hint.classList.remove('active');
+            else hint.classList.add('active');
+
+            setTimeout(() => { galleryLocked = false; }, 700);
         }
 
         function closeGallery() {
             const overlay = document.getElementById('gallery-overlay');
             const backBtn = document.getElementById('gallery-back');
             const counter = document.getElementById('gallery-counter');
+            const hint = document.getElementById('gallery-scroll-hint');
 
-            overlay.removeEventListener('scroll', overlay._scrollHandler);
+            overlay.removeEventListener('wheel', overlay._wheelHandler);
+            overlay.removeEventListener('touchstart', overlay._touchStartHandler);
+            overlay.removeEventListener('touchend', overlay._touchEndHandler);
             overlay.classList.remove('active');
             backBtn.classList.remove('active');
             counter.classList.remove('active');
+            hint.classList.remove('active');
 
             if (galleryReturnPage) {
                 document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
@@ -459,11 +521,9 @@
             let currentPage = document.querySelector('.page:not(.hidden)');
             let currentPageId = currentPage ? currentPage.id : 'he-main';
             let pageType = currentPageId.split('-').slice(1).join('-');
-
             currentLang = lang;
             document.documentElement.dir = (lang === 'he') ? 'rtl' : 'ltr';
             document.documentElement.lang = lang === 'pl' ? 'pl' : (lang === 'en' ? 'en' : 'he');
-
             showPage(lang + '-' + pageType);
         }
     </script>
