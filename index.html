@@ -123,22 +123,73 @@
             text-align: center;
         }
         .photo-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-        .photo-gallery img {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border-radius: 8px;
-            border: 2px solid rgba(139, 115, 85, 0.3);
-            box-shadow: 0 2px 8px rgba(45, 35, 25, 0.15);
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            z-index: 1000;
+            background: #1a1410;
         }
-        .photo-gallery img:hover {
-            transform: scale(1.03);
-            box-shadow: 0 4px 16px rgba(45, 35, 25, 0.25);
+        .photo-slide {
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .photo-slide img {
+            max-width: 92vw;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+        }
+        .photo-caption {
+            margin-top: 1.2rem;
+            color: #f0e8d8;
+            font-size: 1.1rem;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+        .photo-gallery-back {
+            position: fixed;
+            top: 16px;
+            left: 20px;
+            z-index: 1100;
+            color: #f0e8d8;
+            background: rgba(0,0,0,0.45);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: none;
+        }
+        .photo-gallery-back.visible {
+            display: block;
+        }
+        .photo-counter {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1100;
+            color: rgba(240,232,216,0.6);
+            font-size: 0.85rem;
+            display: none;
+        }
+        .photo-counter.visible {
+            display: block;
         }
     </style>
 </head>
@@ -206,13 +257,18 @@
 
         <!-- Hebrew Text 3 -->
         <div id="he-text3" class="page hidden">
-            <a href="#" class="lang-link" onclick="switchLang('pl')">Polski</a>
-            <a href="#" class="lang-link" onclick="switchLang('en')">English</a>
-            <h1>תמונות מחיי מר שמואל צבי בראודה ומבית הקברות ברוז'אן</h1>
-            <div class="photo-gallery">
-                <!-- Images will be added here -->
+            <div class="photo-gallery" id="he-gallery">
+                <div class="photo-slide">
+                    <img src="1.jpeg" alt="לאחר השואה">
+                    <div class="photo-caption">לאחר השואה</div>
+                </div>
+                <div class="photo-slide">
+                    <img src="2.jpeg" alt="מדריך אגודת ישראל במחנה יתומים">
+                    <div class="photo-caption">מדריך אגודת ישראל במחנה יתומים</div>
+                </div>
             </div>
-            <a href="#" class="back-link" onclick="showPage('he-main')">← חזרה לדף הראשי</a>
+            <a href="#" class="photo-gallery-back" id="he-gallery-back" onclick="closeGallery('he-main')">← חזרה לדף הראשי</a>
+            <div class="photo-counter" id="he-gallery-counter"></div>
         </div>
 
         <!-- English Main Page -->
@@ -270,15 +326,18 @@
 
         <!-- English Text 3 -->
         <div id="en-text3" class="page hidden">
-            <a href="#" class="lang-link" onclick="switchLang('pl')">Polski</a>
-            <a href="#" class="lang-link" onclick="switchLang('he')">עברית</a>
-            <div dir="ltr">
-                <h1>Photos from the life of Mr. Shmuel Zvi Braude and from the cemetery in Różan</h1>
-                <div class="photo-gallery">
-                    <!-- Images will be added here -->
+            <div class="photo-gallery" id="en-gallery" dir="ltr">
+                <div class="photo-slide">
+                    <img src="1.jpeg" alt="After the Holocaust">
+                    <div class="photo-caption">After the Holocaust</div>
                 </div>
-                <a href="#" class="back-link" onclick="showPage('en-main')">← Back to main page</a>
+                <div class="photo-slide">
+                    <img src="2.jpeg" alt="Agudat Yisrael counselor in an orphan camp">
+                    <div class="photo-caption">Agudat Yisrael counselor in an orphan camp</div>
+                </div>
             </div>
+            <a href="#" class="photo-gallery-back" id="en-gallery-back" onclick="closeGallery('en-main')">← Back to main page</a>
+            <div class="photo-counter" id="en-gallery-counter"></div>
         </div>
 
         <!-- Polish Main Page -->
@@ -336,22 +395,32 @@
 
         <!-- Polish Text 3 -->
         <div id="pl-text3" class="page hidden">
-            <a href="#" class="lang-link" onclick="switchLang('en')">English</a>
-            <a href="#" class="lang-link" onclick="switchLang('he')">עברית</a>
-            <div dir="ltr">
-                <h1>Zdjęcia z życia Pana Szmuela Cwi Braude oraz z cmentarza w Różanie</h1>
-                <div class="photo-gallery">
-                    <!-- Images will be added here -->
+            <div class="photo-gallery" id="pl-gallery" dir="ltr">
+                <div class="photo-slide">
+                    <img src="1.jpeg" alt="Po Zagładzie">
+                    <div class="photo-caption">Po Zagładzie</div>
                 </div>
-                <a href="#" class="back-link" onclick="showPage('pl-main')">← Powrót do strony głównej</a>
+                <div class="photo-slide">
+                    <img src="2.jpeg" alt="Wychowawca Agudat Israel w obozie dla sierot">
+                    <div class="photo-caption">Wychowawca Agudat Israel w obozie dla sierot</div>
+                </div>
             </div>
+            <a href="#" class="photo-gallery-back" id="pl-gallery-back" onclick="closeGallery('pl-main')">← Powrót do strony głównej</a>
+            <div class="photo-counter" id="pl-gallery-counter"></div>
         </div>
     </div>
 
     <script>
         let currentLang = 'he';
+        let activeGalleryCleanup = null;
 
         function showPage(pageId) {
+            // Clean up any active gallery listeners
+            if (activeGalleryCleanup) {
+                activeGalleryCleanup();
+                activeGalleryCleanup = null;
+            }
+
             // Hide all pages
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.add('hidden');
@@ -364,19 +433,62 @@
             if (pageId === 'he-text2' || pageId === 'en-text2' || pageId === 'pl-text2') {
                 document.body.classList.add('bg-rojan');
             }
+
+            // Set up gallery if this is a photos page
+            const langCode = pageId.split('-')[0];
+            if (pageId.endsWith('text3')) {
+                setupGallery(langCode);
+            }
+        }
+
+        function setupGallery(lang) {
+            const gallery = document.getElementById(lang + '-gallery');
+            const backBtn = document.getElementById(lang + '-gallery-back');
+            const counter = document.getElementById(lang + '-gallery-counter');
+            const slides = gallery.querySelectorAll('.photo-slide');
+            const total = slides.length;
+
+            // Reset scroll to top
+            gallery.scrollTop = 0;
+
+            backBtn.classList.add('visible');
+            counter.classList.add('visible');
+
+            function updateCounter() {
+                const index = Math.round(gallery.scrollTop / gallery.clientHeight);
+                counter.textContent = (index + 1) + ' / ' + total;
+            }
+
+            updateCounter();
+            gallery.addEventListener('scroll', updateCounter);
+
+            activeGalleryCleanup = function() {
+                gallery.removeEventListener('scroll', updateCounter);
+                backBtn.classList.remove('visible');
+                counter.classList.remove('visible');
+            };
+        }
+
+        function closeGallery(returnPage) {
+            if (activeGalleryCleanup) {
+                activeGalleryCleanup();
+                activeGalleryCleanup = null;
+            }
+            // Hide all pages, show the return page directly without re-triggering gallery setup
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+            document.getElementById(returnPage).classList.remove('hidden');
+            document.body.classList.remove('bg-saba', 'bg-rojan');
         }
 
         function switchLang(lang) {
-            // Get current page ID and extract the page type (e.g., 'text1', 'text2', 'main')
             let currentPage = document.querySelector('.page:not(.hidden)');
             let currentPageId = currentPage ? currentPage.id : 'he-main';
-            let pageType = currentPageId.split('-').slice(1).join('-'); // Get everything after language code
+            let pageType = currentPageId.split('-').slice(1).join('-');
 
             currentLang = lang;
             document.documentElement.dir = (lang === 'he') ? 'rtl' : 'ltr';
             document.documentElement.lang = lang === 'pl' ? 'pl' : (lang === 'en' ? 'en' : 'he');
 
-            // Navigate to the same page type in the new language
             showPage(lang + '-' + pageType);
         }
     </script>
